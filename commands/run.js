@@ -1,5 +1,6 @@
 const httpProxy = require('http-proxy');
 const http = require("http");
+const cors = require("cors");
 
 function run ({ uri, port }) {
     const proxy = httpProxy.createProxyServer({});
@@ -8,6 +9,9 @@ function run ({ uri, port }) {
         proxy.web(req, res, {
             changeOrigin: true,
             target: uri
+        });
+        proxy.on('proxyRes', (proxyRes, req, res) => {
+            cors(/* CORS OPTIONS */)(req, res, () => { });
         });
     });
 
