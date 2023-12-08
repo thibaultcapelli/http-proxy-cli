@@ -1,17 +1,34 @@
 const httpProxy = require('http-proxy');
 const http = require("http");
-const cors = require("cors");
+const corsMiddleware = require("cors");
 
-function run ({ uri, port }) {
+function run ({ uri, port, cors }) {
     const proxy = httpProxy.createProxyServer({});
 
     const server = http.createServer(function(req, res) {
+        if (cors) {
+            let corsOptions = {}
+
+            if (Array.isArray(cors)) {
+                const whitelist = Array.isArray(cors)
+
+                corsOptions.origin = function (origin, callback) {
+                    if (whitelist.indexOf(origin) !== -1) {
+                        callback(null, true)
+                    } else {
+                        callback(new Error('Not allowed by CORS'))
+                    }
+                }
+            }
+
+            proxy.on('proxyRes', (proxyRes, req, res) => {
+                corsMiddleware(corsOptions)(req, res, () => {});
+            });
+        }
+
         proxy.web(req, res, {
             changeOrigin: true,
             target: uri
-        });
-        proxy.on('proxyRes', (proxyRes, req, res) => {
-            cors(/* CORS OPTIONS */)(req, res, () => { });
         });
     });
 

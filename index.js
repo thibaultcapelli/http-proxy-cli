@@ -13,6 +13,8 @@ program
     .description('Run a new http proxy')
     .option('-u, --uri <uri>', 'The URI of the server to proxy')
     .option('-p, --port <port>', 'The port to listen to')
+    .option('-c --cors [cors...]', 'Add CORS middleware', "*")
+    .option('--no-cors', 'Disable CORS')
     .action(run)
 
 program.parse();
